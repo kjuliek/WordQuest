@@ -13,7 +13,7 @@ Explorez, apprenez, dominez avec WordQuest : votre aventure vers l'anglais parfa
  
  *With WordQuest, explore a virtual world filled with linguistic challenges and captivating quests. Navigate through different levels and thematic areas, where each step presents you with a series of words to learn and master.*
  
- ### Membres du groupes :
+ ### Membres du groupe :
  * Thomas BATAILLE
  * Julie KREUWEN
 
