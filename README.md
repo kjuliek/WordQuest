@@ -17,3 +17,15 @@ Explorez, apprenez, dominez avec WordQuest : votre aventure vers l'anglais parfa
  * Thomas BATAILLE
  * Julie KREUWEN
 
+ ### Technologies utilisées :
+ #### Développement :
+ * Base de donnée MySQL
+ * API en C# avec ASP.NET
+
+ #### Infrastructure :
+ * Serveur de Base de donnée
+ * Serveur web
+ 
+
+
+
