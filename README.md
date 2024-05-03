@@ -26,6 +26,10 @@ Explorez, apprenez, dominez avec WordQuest : votre aventure vers l'anglais parfa
  * Serveur de Base de donnée
  * Serveur web
  
+## Lancer le projet
 
 
+## Structure de la DataBase
+
+![Structure de la DataBase](db/schema_db.png)
 
