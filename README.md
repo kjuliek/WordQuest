@@ -20,7 +20,9 @@ Explorez, apprenez, dominez avec WordQuest : votre aventure vers l'anglais parfa
  ### Technologies utilisées :
  #### Développement :
  * Base de donnée MySQL
- * API en C# avec ASP.NET
+ * API en C# avec ASP.NET Core 8
+ * JavaScript pour le lien html/API
+ * Swagger pour le debug de l'API
 
  #### Infrastructure :
  * Serveur de Base de donnée
@@ -31,5 +33,8 @@ Explorez, apprenez, dominez avec WordQuest : votre aventure vers l'anglais parfa
 
 ## Structure de la DataBase
 
-![Structure de la DataBase](db/schema_db.png)
+![Structure de la DataBase](WordQuestDB/schema_db.png)
+
+## Diagramme de l'API 
+![Diagramme de l'API](DiagrammeWordQuestAPI.png)
 
