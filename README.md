@@ -16,6 +16,13 @@ Explorez, apprenez, dominez avec WordQuest : votre aventure vers l'anglais parfa
 
 ## Création du Projet ASP.NET Core 8 pour l'API
 
+L'ensemble de ces fonctions doivent s'afficher sur la page http://localhost:5094/swagger/index.html
+
+<img src="Documentation/SwaggerWordQuestCourse.png" alt="Description" style="width: 50%; height: auto;">
+<img src="Documentation/SwaggerWordQuestGroup.png" alt="Description" style="width: 50%; height: auto;">
+<img src="Documentation/SwaggerWordQuestUser.png" alt="Description" style="width: 50%; height: auto;">
+<img src="Documentation/SwaggerWordQuestWord.png" alt="Description" style="width: 50%; height: auto;">
+
 ## Installations des Machines Virtuelles
  
 ## Lancer le projet

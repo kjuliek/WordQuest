@@ -19,13 +19,14 @@ namespace WordQuestAPI.Models
         public int UserLevel { get; set; }
         [Column("user_xp")]
         public int UserXP { get; set; }
-        public ICollection<LearnedWord> LearnedWords  { get; set; } = new List<LearnedWord>();
-
+        
+        //public ICollection<LearnedWord> LearnedWords  { get; set; } = new List<LearnedWord>();
+    /*
         [InverseProperty("Members")]
-        public ICollection<Group> Groups { get; set; } = new List<Group>();
+        public ICollection<Group>? Groups { get; set; }
         [InverseProperty("GroupAdmin")]
-        public ICollection<Group> AdministeredGroups { get; set; } = new List<Group>();
+        public ICollection<Group>? AdministeredGroups { get; set; }
         [InverseProperty("CourseCreator")]
-        public ICollection<Course> CreatedCourses{ get; set; }= new List<Course>();
+        public ICollection<Course>? CreatedCourses{ get; set; } */
     }
 }

@@ -45,13 +45,20 @@ namespace WordQuestAPI.Controllers
         [HttpGet("{word_id}/courses")]
         public async Task<ActionResult<Course>> GetWordCourses(int word_id)
         {
-            var word = await _context.Words
-                .Include(w => w.Courses)
-                .FirstOrDefaultAsync(w => w.WordId == word_id);
+            var coursesWords = await _context.CoursesWords
+                .Where(cw => cw.WordId == word_id)
+                .ToListAsync();
 
-            if (word == null) { return NotFound(); }
+            var courses = new List<Course>();
+            foreach (var courseWord in coursesWords) {
+                var course = await _context.Courses
+                    .FindAsync(courseWord.CourseId);
+                if (course == null) { return NotFound(); }
+                courses.Add(course);
+                }
+            //if (courses.Count == 0) { return NotFound(); }
 
-            return Ok(word.Courses);
+            return Ok(courses);
         }
 
         // PUT: api/WordQuestWord/5

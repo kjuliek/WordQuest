@@ -14,7 +14,7 @@ namespace WordQuestAPI.Models
 
         [Column("en_word")] // Correspond au nom de la colonne dans votre base de données
         public string EnWord { get; set; } = string.Empty;
-        [InverseProperty("Words")]
-        public ICollection<Course> Courses{ get; set; } = new List<Course>();
+        /*[InverseProperty("Words")]
+        public ICollection<Course>? Courses{ get; set; }*/
     }
 }

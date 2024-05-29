@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Bcpg;
 using WordQuestAPI.Models;
 
 namespace WordQuestAPI.Controllers
@@ -38,60 +39,88 @@ namespace WordQuestAPI.Controllers
             return @group;
         }
 
-        // GET: api/WordQuestGroup/5/members/
-        [HttpGet("{group_id}/members/")]
-        public async Task<ActionResult<User>> GetGroupMembers(int group_id)
+        // GET: api/WordQuestGroup/5/admin
+        [HttpGet("{group_id}/admin")]
+        public async Task<ActionResult<User>> GetGroupAdmin(int group_id)
         {
-            var @group = await _context.Groups   // '@' allows using 'group' despite it being a reserved keyword in C#.
-                .Include(g => g.Members)
-                .FirstOrDefaultAsync(g => g.GroupId == group_id);  
+            var @group = await _context.Groups.FindAsync(group_id);      // '@' allows using 'group' despite it being a reserved keyword in C#.
+
             if (@group == null) { return NotFound(); }
 
-            return Ok(@group.Members);
+            var admin = await _context.Users.FindAsync(@group.AdminId);
+            if (admin == null) return NotFound();
+
+            return admin;
         }
 
-        // GET: api/WordQuestGroup/5/members/2
-        [HttpGet("{group_id}/members/{user_id}")]
-        public async Task<ActionResult<User>> GetGroupMember(int group_id, int user_id)
-        {
-            var @group = await _context.Groups   // '@' allows using 'group' despite it being a reserved keyword in C#.
-                .Include(g => g.Members)
-                .FirstOrDefaultAsync(g => g.GroupId == group_id);  
-            if (@group == null) { return NotFound(); }
-
-            var member = @group.Members
-                .FirstOrDefault(m => m.UserId == user_id);
-            if (member == null) { return NotFound(); }
-
-            return Ok(member);
-        }
-
-                // GET: api/WordQuestGroup/5/courses/
+        // GET: api/WordQuestGroup/5/courses/
         [HttpGet("{group_id}/courses/")]
         public async Task<ActionResult<Course>> GetGroupCourses(int group_id)
         {
-            var @group = await _context.Groups   // '@' allows using 'group' despite it being a reserved keyword in C#.
-                .Include(g => g.Courses)
-                .FirstOrDefaultAsync(g => g.GroupId == group_id);  
-            if (@group == null) { return NotFound(); }
+            var groupCourses = await _context.GroupsCourses
+                .Where(gc => gc.GroupId == group_id)
+                .ToListAsync();
+            
+            var courses = new List<Course>();
+            foreach (var groupCourse in groupCourses) {
+                var course = await _context.Courses
+                    .FirstOrDefaultAsync(c => c.CourseId == groupCourse.CourseId);
+                if (course == null) { return NotFound(); }
+                courses.Add(course); 
+            }
 
-            return Ok(@group.Courses);
+            return Ok(courses);
         }
 
         // GET: api/WordQuestGroup/5/courses/2
         [HttpGet("{group_id}/courses/{course_id}")]
         public async Task<ActionResult<Course>> GetGroupCourse(int group_id, int course_id)
         {
-            var @group = await _context.Groups   // '@' allows using 'group' despite it being a reserved keyword in C#.
-                .Include(g => g.Courses)
-                .FirstOrDefaultAsync(g => g.GroupId == group_id);  
-            if (@group == null) { return NotFound(); }
+            var groupCourses = await _context.GroupsCourses
+                .Where(gc => gc.GroupId == group_id && gc.CourseId == course_id)
+                .FirstOrDefaultAsync();
+            if (groupCourses == null) { return NotFound(); }
 
-            var course = @group.Courses
-                .FirstOrDefault(c => c.CourseId == course_id);
+            var course = await _context.Courses
+                .FirstOrDefaultAsync(c => c.CourseId == course_id);
+
             if (course == null) { return NotFound(); }
 
             return Ok(course);
+        }
+
+        // GET: api/WordQuestGroup/5/members/
+        [HttpGet("{group_id}/members/")]
+        public async Task<ActionResult<User>> GetGroupMembers(int group_id)
+        {
+            var groupUsers = await _context.GroupsUsers   // '@' allows using 'group' despite it being a reserved keyword in C#.
+                .Where(gu => gu.GroupId == group_id)
+                .ToListAsync();
+
+            var members = new List<User>();
+            foreach (var groupUser in groupUsers)
+            {
+                var member = await _context.Users.FindAsync(groupUser.UserId);
+                if (member == null) { return NotFound(); }
+                members.Add(member);
+            }
+
+            return Ok(members);
+        }
+
+        // GET: api/WordQuestGroup/5/members/2
+        [HttpGet("{group_id}/members/{user_id}")]
+        public async Task<ActionResult<User>> GetGroupMember(int group_id, int user_id)
+        {
+            var groupUser = await _context.GroupsUsers   // '@' allows using 'group' despite it being a reserved keyword in C#.
+                .FirstOrDefaultAsync(g => g.GroupId == group_id && g.UserId == user_id);  
+            if (groupUser == null) { return NotFound(); }
+
+            var member = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserId == user_id);
+            if (member == null) { return NotFound(); }
+
+            return Ok(member);
         }
 
         // PUT: api/WordQuestGroup/5
@@ -136,36 +165,29 @@ namespace WordQuestAPI.Controllers
             return CreatedAtAction("GetGroup", new { group_id = @group.GroupId }, @group);
         }
 
-        // POST: api/WordQuestGroup/5/members
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("{group_id}/members/")]
-        public async Task<ActionResult<User>> PostGroupMember(int group_id, User member)
-        {
-            var @group = await _context.Groups
-                .Include(g => g.Members)
-                .FirstOrDefaultAsync(g => g.GroupId == group_id);
-            if (@group == null) { return NotFound(); }
-
-            @group.Members.Add(member);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetGroupMember", new {group_id, user_id = member.UserId }, member);
-        }
-
         // POST: api/WordQuestGroup/5/courses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("{group_id}/courses/")]
         public async Task<ActionResult<Course>> PostGroupCourse(int group_id, Course newCourse)
         {
-            var @group = await _context.Groups
-                .Include(g => g.Courses)
-                .FirstOrDefaultAsync(g => g.GroupId == group_id);
-            if (@group == null) { return NotFound(); }
+            var groupCourse = new GroupCourses { CourseId = newCourse.CourseId , GroupId = group_id } ;
 
-            @group.Courses.Add(newCourse);
+            _context.GroupsCourses.Add(groupCourse);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetGroupCourse", new {group_id, course_id = newCourse.CourseId }, newCourse);
+        }
+
+        // POST: api/WordQuestGroup/5/members
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("{group_id}/members/")]
+        public async Task<ActionResult<User>> PostGroupMember(int group_id, User member)
+        {
+            var groupUser = new GroupUsers { UserId = member.UserId , GroupId = group_id } ;
+            _context.GroupsUsers.Add(groupUser);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetGroupMember", new {group_id, user_id = member.UserId }, member);
         }
 
         // DELETE: api/WordQuestGroup/5
@@ -184,39 +206,31 @@ namespace WordQuestAPI.Controllers
             return NoContent();
         }
 
-        // DELETE: api/WordQuestGroup/5/members/2
-        [HttpDelete("{group_id}/members/{user_id}")]
-        public async Task<IActionResult> DeleteGroupMember(int group_id, int user_id)
+        // DELETE: api/WordQuestGroup/5/courses/2
+        [HttpDelete("{group_id}/courses/{course_id}")]
+        public async Task<IActionResult> DeleteGroupCourse(int group_id, int course_id)
         {
-            var @group = await _context.Groups
-                .Include(g => g.Members)
-                .FirstOrDefaultAsync(g => g.GroupId == group_id);
-            if (@group == null) { return NotFound(); }
-            
-            var member = @group.Members
-                .FirstOrDefault(m => m.UserId == user_id);
-            if (member == null) { return NotFound(); }
+            var groupCourse = await _context.GroupsCourses
+                .Where(gc => gc.GroupId == group_id && gc.CourseId == course_id)
+                .FirstOrDefaultAsync();
+            if (groupCourse == null) { return NotFound(); }
 
-            @group.Members.Remove(member);
+            _context.GroupsCourses.Remove(groupCourse);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // DELETE: api/WordQuestGroup/5/courses/2
-        [HttpDelete("{group_id}/courses/{course_id}")]
-        public async Task<IActionResult> DeleteGroupCourse(int group_id, int course_id)
+        // DELETE: api/WordQuestGroup/5/members/2
+        [HttpDelete("{group_id}/members/{user_id}")]
+        public async Task<IActionResult> DeleteGroupMember(int group_id, int user_id)
         {
-            var @group = await _context.Groups
-                .Include(g => g.Courses)
-                .FirstOrDefaultAsync(g => g.GroupId == group_id);
-            if (@group == null) { return NotFound(); }
-            
-            var course = @group.Courses
-                .FirstOrDefault(c => c.CourseId == course_id);
-            if (course == null) { return NotFound(); }
-            
-            @group.Courses.Remove(course);
+            var groupUser = await _context.GroupsUsers
+                .Where(gu => gu.UserId == user_id && gu.GroupId == group_id)
+                .FirstOrDefaultAsync();
+            if (groupUser == null) { return NotFound(); }
+
+            _context.GroupsUsers.Remove(groupUser);
             await _context.SaveChangesAsync();
 
             return NoContent();

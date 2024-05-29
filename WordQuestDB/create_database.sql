@@ -30,7 +30,7 @@ CREATE TABLE Groups (
 DROP TABLE IF EXISTS Courses;
 CREATE TABLE Courses (
     course_id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    creater_id INTEGER,
+    creator_id INTEGER,
     course_name VARCHAR(255) NOT NULL,
     course_description TEXT,
     course_level INTEGER,

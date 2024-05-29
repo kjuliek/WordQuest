@@ -1,2 +1,1 @@
-INSERT INTO Words (fr_word, en_word)
-VALUES ('maison', 'house');
+DROP TABLE IF EXISTS users;

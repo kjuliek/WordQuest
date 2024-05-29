@@ -38,44 +38,71 @@ namespace WordQuestAPI.Controllers
             return course;
         }
 
+        // GET: api/WordQuestCourse/5/creator
+        [HttpGet("{course_id}/creator")]
+        public async Task<ActionResult<User>> GetCourseCreator(int course_id)
+        {
+            var course = await _context.Courses.FindAsync(course_id);
+
+            if (course == null) return NotFound();
+
+            var creator = await _context.Users.FindAsync(course.CreatorId);
+            if (creator == null) return NotFound();
+
+            return creator;
+        }
+
         // GET: api/WordQuestCourse/5/groups
         [HttpGet("{course_id}/groups")]
         public async Task<ActionResult<Group>> GetCourseGroups(int course_id)
         {
-            var course = await _context.Courses
-                .Include(c => c.Groups)
-                .FirstOrDefaultAsync(c => c.CourseId == course_id);
+            var groupsCourse = await _context.GroupsCourses
+                .Where(gc => gc.CourseId == course_id)
+                .ToListAsync();
 
-            if (course == null) { return NotFound(); }
+            var groups = new List<Group>();
+            foreach (var groupCourses in groupsCourse)
+            {
+                var @group = await _context.Groups.FindAsync(groupCourses.GroupId);
+                if (@group == null) { return NotFound(); }
 
-            return Ok(course.Groups);
+                groups.Add(@group);
+            }
+
+            return Ok(groups);
         }
         
         // GET: api/WordQuestCourse/5/words
         [HttpGet("{course_id}/words")]
         public async Task<ActionResult<Word>> GetCourseWords(int course_id)
         {
-            var course = await _context.Courses
-                .Include(c => c.Words)
-                .FirstOrDefaultAsync(c => c.CourseId == course_id);
+            var courseWords = await _context.CoursesWords
+                .Where(cw => cw.CourseId == course_id)
+                .ToListAsync();
 
-            if (course == null) { return NotFound(); }
+            var words = new List<Word>();
+            foreach (var courseword in courseWords) {
+                var word = await _context.Words.FindAsync(courseword.WordId);
+                if (word == null) { return NotFound(); }
 
-            return Ok(course.Words);
+                words.Add(word);
+            }
+
+            return Ok(words);
         }
         
         // GET: api/WordQuestCourse/5/words/2
-        [HttpGet("{course_id}/groups/{word_id}")]
+        [HttpGet("{course_id}/words/{word_id}")]
         public async Task<ActionResult<Word>> GetCourseWord(int course_id, int word_id)
         {
-            var course = await _context.Courses
-                .Include(c => c.Words)
-                .FirstOrDefaultAsync(c => c.CourseId == course_id);
+            var courseWords = await _context.CoursesWords
+                .Where(cw => cw.CourseId == course_id && cw.WordId == word_id)
+                .FirstOrDefaultAsync();
 
-            if (course == null) { return NotFound(); }
+            if (courseWords == null) { return NotFound(); }
 
-            var word = course.Words
-                .FirstOrDefault(w => w.WordId == word_id);
+            var word = await _context.Words
+                .FirstOrDefaultAsync(w => w.WordId == word_id);
                 
             if (word == null) { return NotFound(); }
 
@@ -87,10 +114,7 @@ namespace WordQuestAPI.Controllers
         [HttpPut("{course_id}")]
         public async Task<IActionResult> PutCourse(int course_id, Course course)
         {
-            if (course_id != course.CourseId)
-            {
-                return BadRequest();
-            }
+            if (course_id != course.CourseId) { return BadRequest(); }
 
             _context.Entry(course).State = EntityState.Modified;
 
@@ -129,12 +153,9 @@ namespace WordQuestAPI.Controllers
         [HttpPost("{course_id}/words")]
         public async Task<ActionResult<Word>> PostCourseWord(int course_id, Word word)
         {
-            var course = await _context.Courses
-                .Include(c => c.Words)
-                .FirstOrDefaultAsync(c => c.CourseId == course_id);
-            if (course == null) { return NotFound(); }
-
-            course.Words.Add(word);
+            var courseWord = new CourseWords { CourseId = course_id, WordId = word.WordId };
+            
+            _context.CoursesWords.Add(courseWord);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetCourseWords", new { course_id, word_id = word.WordId }, word);
@@ -157,16 +178,13 @@ namespace WordQuestAPI.Controllers
         [HttpDelete("{course_id}/words/{word_id}")]
         public async Task<IActionResult> DeleteCourseWord(int course_id, int word_id)
         {
-            var course = await _context.Courses
-                .Include(c => c.Words)
-                .FirstOrDefaultAsync(c => c.CourseId == course_id);
-            if (course == null) { return NotFound(); }
+            var courseWord = await _context.CoursesWords
+                .Where(cw => cw.CourseId == course_id && cw.WordId == word_id)
+                .FirstOrDefaultAsync();
 
-            var word = course.Words
-                .FirstOrDefault(w => w.WordId == word_id);
-            if (word == null) { return NotFound(); }
+            if (courseWord == null) { return NotFound(); }
 
-            course.Words.Remove(word);
+            _context.CoursesWords.Remove(courseWord);
             await _context.SaveChangesAsync();
 
             return NoContent();

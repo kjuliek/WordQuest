@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations; // Pour l'attribut [Key]
 using System.ComponentModel.DataAnnotations.Schema; // Pour l'attribut [Column]
 
 namespace WordQuestAPI.Models 
