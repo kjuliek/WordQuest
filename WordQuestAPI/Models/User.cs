@@ -1,32 +1,17 @@
-using System.ComponentModel.DataAnnotations; // Pour l'attribut [Key]
-using System.ComponentModel.DataAnnotations.Schema; // Pour l'attribut [Column]
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace WordQuestAPI.Models 
 {
-    [Table("users")]
-    public class User
+    public class User : IdentityUser
     {
-        [Key]
-        [Column("user_id")]
-        public int UserId { get; set; }
-        [Column("user_name")]
-        public string UserName { get; set; } = string.Empty;
-        [Column("user_password")]
-        public string UserPassword { get; set; } = string.Empty;
-        [Column("user_email")]
-        public string UserEmail { get; set; } = string.Empty;
-        [Column("user_level")]
-        public int UserLevel { get; set; }
-        [Column("user_xp")]
-        public int UserXP { get; set; }
-        
-        //public ICollection<LearnedWord> LearnedWords  { get; set; } = new List<LearnedWord>();
-    /*
-        [InverseProperty("Members")]
-        public ICollection<Group>? Groups { get; set; }
-        [InverseProperty("GroupAdmin")]
-        public ICollection<Group>? AdministeredGroups { get; set; }
-        [InverseProperty("CourseCreator")]
-        public ICollection<Course>? CreatedCourses{ get; set; } */
+        public override string Id { get; set; }
+        public override string UserName { get; set; }
+
+        public override string PasswordHash { get; set; }
+
+        public override string Email { get; set; }
+        public override string PhoneNumber { get; set; }
     }
 }

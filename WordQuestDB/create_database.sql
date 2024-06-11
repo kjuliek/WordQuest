@@ -4,12 +4,10 @@ USE wordquest;
 
 DROP TABLE IF EXISTS Users;
 CREATE TABLE Users (
-    user_id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    user_name VARCHAR(255) NOT NULL,
-    user_password VARCHAR(255) NOT NULL,
-    user_email VARCHAR(255) NOT NULL,
+    user_id INTEGER,
     user_level INTEGER,
-    user_xp INTEGER
+    user_xp INTEGER,
+    FOREIGN KEY (user_id) REFERENCES AspNetUsers(id)
 );
 
 DROP TABLE IF EXISTS Words;
@@ -24,7 +22,7 @@ CREATE TABLE Groups (
     group_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     group_name VARCHAR(255) NOT NULL,
     admin_id INTEGER,
-    FOREIGN KEY (admin_id) REFERENCES Users(user_id)
+    FOREIGN KEY (admin_id) REFERENCES Users(id)
 );
 
 DROP TABLE IF EXISTS Courses;
@@ -35,7 +33,7 @@ CREATE TABLE Courses (
     course_description TEXT,
     course_level INTEGER,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (creater_id) REFERENCES Users(user_id)
+    FOREIGN KEY (creator_id) REFERENCES Users(id)
 );
 
 DROP TABLE IF EXISTS Group_Users;
@@ -43,7 +41,7 @@ CREATE TABLE Group_Users (
     group_id INTEGER,
     user_id INTEGER,
     FOREIGN KEY (group_id) REFERENCES Groups(group_id),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(id)
 );
 
 DROP TABLE IF EXISTS Group_Courses;
@@ -67,6 +65,6 @@ CREATE TABLE Learned_Words (
     user_id INTEGER,
     word_id INTEGER,
     learning_stage INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (user_id) REFERENCES Users(id),
     FOREIGN KEY (word_id) REFERENCES Words(word_id)
 );

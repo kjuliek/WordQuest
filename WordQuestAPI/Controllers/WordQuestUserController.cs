@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WordQuestAPI.Migrations;
 using WordQuestAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace WordQuestAPI.Controllers
 {
@@ -14,10 +14,12 @@ namespace WordQuestAPI.Controllers
     [ApiController]
     public class WordQuestUserController : ControllerBase
     {
+        private readonly UserManager<User> _userManager;
         private readonly WordQuestContext _context;
 
-        public WordQuestUserController(WordQuestContext context)
+        public WordQuestUserController(UserManager<User> userManager, WordQuestContext context)
         {
+            _userManager = userManager;
             _context = context;
         }
 
@@ -25,26 +27,23 @@ namespace WordQuestAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Users
-            .ToListAsync();
+            return await _userManager.Users
+                .ToListAsync();
         }
 
         // GET: api/WordQuestUser/5
         [HttpGet("{user_id}")]
-        public async Task<ActionResult<User>> GetUser(int user_id)
+        public async Task<ActionResult<User>> GetUser(string user_id)
         {
-            
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserId == user_id);
-
-            if (user == null) { return NotFound(); }
+            var user = await _userManager.FindByIdAsync(user_id);
+            if (user == null) return NotFound();
 
             return user;
         }
 
         // GET: api/WordQuestUser/5/learnedwords
         [HttpGet("{user_id}/learnedwords")]
-        public async Task<ActionResult<IEnumerable<Word>>> GetUserLearnedWords(int user_id)
+        public async Task<ActionResult<IEnumerable<Word>>> GetUserLearnedWords(string user_id)
         {
             var learnedWords = await _context.LearnedWords
                 .Where(lw => lw.UserId == user_id)
@@ -61,7 +60,7 @@ namespace WordQuestAPI.Controllers
 
         // GET: api/WordQuestUser/5/learnedwords
         [HttpGet("{user_id}/learnedwords/{word_id}")]
-        public async Task<ActionResult<IEnumerable<Word>>> GetUserLearnedWord(int user_id, int word_id)
+        public async Task<ActionResult<IEnumerable<Word>>> GetUserLearnedWord(string user_id, int word_id)
         {
             var learnedWord = await _context.LearnedWords
                 .FirstOrDefaultAsync(lw => lw.UserId == user_id && lw.WordId == word_id);
@@ -75,7 +74,7 @@ namespace WordQuestAPI.Controllers
 
         // GET: api/WordQuestUser/5/administeredgroups/
         [HttpGet("{user_id}/administeredgroups/")]
-        public async Task<ActionResult<IEnumerable<Group>>> GetUserAdministeredGroups(int user_id)
+        public async Task<ActionResult<IEnumerable<Group>>> GetUserAdministeredGroups(string user_id)
         {
             var groups = await _context.Groups
                 .ToListAsync();
@@ -92,7 +91,7 @@ namespace WordQuestAPI.Controllers
 
         // GET: api/WordQuestUser/5/createdcourses/
         [HttpGet("{user_id}/createdcourses/")]
-        public async Task<ActionResult<IEnumerable<Course>>> GetUserCreatedCourses(int user_id)
+        public async Task<ActionResult<IEnumerable<Course>>> GetUserCreatedCourses(string user_id)
         {
             var courses = await _context.Courses
                 .ToListAsync();
@@ -109,7 +108,7 @@ namespace WordQuestAPI.Controllers
 
         // GET: api/WordQuestUser/5/groups/
         [HttpGet("{user_id}/groups/")]
-        public async Task<ActionResult<IEnumerable<Group>>> GetUserGroups(int user_id)
+        public async Task<ActionResult<IEnumerable<Group>>> GetUserGroups(string user_id)
         {
             var groupUsers = await _context.GroupsUsers
                 .Where(gu => gu.UserId == user_id)
@@ -128,7 +127,7 @@ namespace WordQuestAPI.Controllers
 
         // GET: api/WordQuestUser/5/groups/2
         [HttpGet("{user_id}/groups/{group_id}")]
-        public async Task<ActionResult<IEnumerable<Group>>> GetUserGroup(int user_id, int group_id)
+        public async Task<ActionResult<IEnumerable<Group>>> GetUserGroup(string user_id, int group_id)
         {
             var groupUser = await _context.GroupsUsers
                 .Where(gu => gu.UserId == user_id && gu.GroupId == group_id)
@@ -146,38 +145,30 @@ namespace WordQuestAPI.Controllers
         // PUT: api/WordQuestUser/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{user_id}")]
-        public async Task<IActionResult> PutUser(int user_id, User user)
+        public async Task<IActionResult> PutUser(string user_id, User user)
         {
-            if (user_id != user.UserId)
-            {
-                return BadRequest();
-            }
+            if (user_id != user.Id) return BadRequest();
 
-            _context.Entry(user).State = EntityState.Modified;
+            var existingUser = await _userManager.FindByIdAsync(user_id);
+            if (existingUser == null) return NotFound();
 
-            try
+            existingUser.PhoneNumber = user.PhoneNumber;
+            
+            var result = await _userManager.UpdateAsync(existingUser);
+            if (result.Succeeded)
             {
-                await _context.SaveChangesAsync();
+                return NoContent();
             }
-            catch (DbUpdateConcurrencyException)
+            else
             {
-                if (!UserExists(user_id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest(result.Errors);
             }
-
-            return NoContent();
         }
 
         // PUT: api/WordQuestUser/5/learnedwords/2
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{user_id}/learnedwords/{word_id}")]
-        public async Task<IActionResult> UpdateLearnedWord(int user_id, int word_id, [FromBody] int newLearningStage)
+        public async Task<IActionResult> UpdateLearnedWord(string user_id, int word_id, [FromBody] int newLearningStage)
         {
             var learnedWord = await _context.LearnedWords
                 .FirstOrDefaultAsync(lw => lw.UserId == user_id && lw.WordId == word_id);
@@ -201,20 +192,23 @@ namespace WordQuestAPI.Controllers
         // POST: api/WordQuestUser
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<User>> PostUser(User user, string password)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            var result = await _userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                return CreatedAtAction(nameof(GetUser), new { userId = user.Id }, user);
+            }
 
-            return CreatedAtAction(nameof(GetUser), new { user_id = user.UserId }, user);
+            return BadRequest(result.Errors);
         }
 
         // POST: api/WordQuestUser/5/learnedwords
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("{user_id}/learnedwords")]
-        public async Task<ActionResult<User>> PostLearnedWord(int user_id, [FromBody] int word_id)
+        public async Task<ActionResult<User>> PostLearnedWord(string user_id, [FromBody] int word_id)
         {  
-            var user = await _context.Users.FindAsync(user_id);
+            var user = await _userManager.FindByIdAsync(user_id);
             if (user == null) { return NotFound(); }
 
             var word = await _context.Words.FindAsync(word_id);
@@ -229,20 +223,26 @@ namespace WordQuestAPI.Controllers
 
         // DELETE: api/WordQuestUser/5
         [HttpDelete("{user_id}")]
-        public async Task<IActionResult> DeleteUser(int user_id)
+        public async Task<IActionResult> DeleteUser(string user_id)
         {
-            var user = await _context.Users.FindAsync(user_id);
-            if (user == null)  { return NotFound(); }
+            var user = await _userManager.FindByIdAsync(user_id);
+            if (user == null)  return NotFound();
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+            else
+            {
+                // Gérer les erreurs de suppression de l'utilisateur
+                return StatusCode(500);
+            }
         }
 
         // DELETE: api/WordQuestUser/5/learnedwords/2
         [HttpDelete("{user_id}/learnedwords/{word_id}")]
-        public async Task<IActionResult> DeleteUserLearnedWord(int user_id, int word_id)
+        public async Task<IActionResult> DeleteUserLearnedWord(string user_id, int word_id)
         {
             var learnedWord = await _context.LearnedWords
                 .FirstOrDefaultAsync(lw => lw.UserId == user_id && lw.WordId == word_id);
@@ -257,7 +257,7 @@ namespace WordQuestAPI.Controllers
 
         // DELETE: api/WordQuestUser/5/groups/2
         [HttpDelete("{user_id}/groups/{group_id}")]
-        public async Task<IActionResult> DeleteUserGroup(int user_id, int group_id)
+        public async Task<IActionResult> DeleteUserGroup(string user_id, int group_id)
         {
             var groupUser = await _context.GroupsUsers
                 .Where(gu => gu.UserId == user_id && gu.GroupId == group_id)
@@ -268,11 +268,6 @@ namespace WordQuestAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool UserExists(int user_id)
-        {
-            return _context.Users.Any(e => e.UserId == user_id);
         }
     }
 }

@@ -63,8 +63,8 @@ function displayEditForm(id) {
 }
 
 function updateUser() {
-    const userId = document.getElementById('edit-id').value;
-    const editUserNameTextbox = document.getElementById('edit-user-name');
+  const userId = document.getElementById('edit-id').value;
+  const editUserNameTextbox = document.getElementById('edit-user-name');
   const editdUserEmailTextbox = document.getElementById('edit-user-email');
   const editUserPasswordTextbox = document.getElementById('edit-user-password');
   const editConfirmPasswordTextbox = document.getElementById('edit-confirm-password');

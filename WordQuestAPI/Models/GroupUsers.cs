@@ -5,9 +5,9 @@ namespace WordQuestAPI.Models
     [Table("group_users")]
     public class GroupUsers {
 
-        [ForeignKey("user_id")]     // Not necessary here. We keep it to be explicit about the foreign key relationship.
+        [ForeignKey("id")]     // Not necessary here. We keep it to be explicit about the foreign key relationship.
         [Column("user_id")]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [ForeignKey("group_id")]     // Not necessary here. We keep it to be explicit about the foreign key relationship.
         [Column("group_id")]

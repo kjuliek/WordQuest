@@ -1,4 +1,4 @@
-const uri = '../../../api/WordQuestWord';
+const uri = '../../../../api/WordQuestWord';
 let words = [];
 
 function getWords() {
@@ -6,6 +6,82 @@ function getWords() {
     .then(response => response.json())
     .then(data => _displayWords(data))
     .catch(error => console.error('Unable to get words.', error));
+}
+
+let correctAnswer = "";
+
+function loadRandomWord() {
+  fetch(uri)
+      .then(response => response.json())
+      .then(data => {
+          enableOnClick();
+          const randomIndex = Math.floor(Math.random() * data.length);
+          const randomWord = data[randomIndex];
+          document.getElementById('randomWord').innerText = randomWord.enWord;
+          correctAnswer = randomWord.frWord;
+          // Charger les réponses possibles
+          const answers = [randomWord.frWord];
+          while (answers.length < 4) {
+            const randomIndex = Math.floor(Math.random() * data.length);
+            const randomAnswer = data[randomIndex];
+            answers.push(randomAnswer.frWord);
+          }
+          // Mélanger les réponses
+          answers.sort(() => Math.random() - 0.5);
+          // Afficher les réponses
+          for (let i = 0; i < 4; i++) {
+            document.getElementById(`answer${i + 1}`).classList = ["answer"]
+            document.getElementById(`answer${i + 1}`).innerText = answers[i];
+          }
+          const validateButton = document.getElementById('validateButton');
+          validateButton.classList = ['hidden'];
+      })
+      .catch(error => console.error('Error:', error));
+}
+
+function checkAnswer(index) {
+  const selectedAnswer = document.getElementById(`answer${index + 1}`);
+  //let answers = document.querySelectorAll('.answer');
+  if (selectedAnswer.innerText === correctAnswer) {
+    selectedAnswer.classList = ['correct-answer'];
+  } else {
+    selectedAnswer.classList = ['incorrect-answer'];
+  }
+  for (let i = 0; i < 4; i++) {
+    const thisAnswer = document.getElementById(`answer${i + 1}`);
+    if (thisAnswer.innerText == correctAnswer) {
+      thisAnswer.classList = ['correct-answer'];
+    } else {
+      thisAnswer.classList.add('disabled');
+    }
+  }
+
+  disableOnClick();
+
+  const validateButton = document.getElementById('validateButton');
+  validateButton.classList= ['visible'];
+  return false;
+}
+
+function disableOnClick() {
+  const answers = document.querySelectorAll('.answers a');
+  originalOnClicks = []; // Reset the array
+  
+  answers.forEach((answer) => {
+    // Remove the onclick attribute
+    answer.onclick = null;
+  });
+}
+
+function enableOnClick() {
+  const answers = document.querySelectorAll('.answers a');
+  
+  answers.forEach((answer, index) => {
+    // Reapply the original onclick function
+    answer.onclick = function() {
+      checkAnswer(index);
+    }
+  });
 }
 
 function addWord() {

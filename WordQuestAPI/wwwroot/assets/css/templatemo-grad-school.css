@@ -8,10 +8,6 @@ https://templatemo.com/tm-557-grad-school
 
 
 @import url(fontawesome.css);
-@import url("<link href='https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900' rel='stylesheet'>");
-body {
-    font-family: 'Montserrat', sans-serif;
-}
 
 /* Basic */
 
@@ -447,7 +443,7 @@ padding-left: 1rem !important;
 }
 
 .bg-school {
-  background-image: url(/wwwroot/assets/images/main-slider-03.jpg);
+  background-image: url(../images/main-slider-03.jpg);
   background-color: #172238;
   background-repeat: no-repeat;
   background-size: cover;
@@ -456,6 +452,16 @@ padding-left: 1rem !important;
 
 .bg-blue {
   background-color: #172238;
+}
+
+.bg-orange {
+  background-color: #f5a425;
+  color: #fff;
+}
+
+.bg-orange:hover {
+  background-color: #172238 !important;
+  color: #fff;
 }
 
 .full-screen {
@@ -670,7 +676,7 @@ a.menu-link { display: none; }
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 700;
-    color: #fff;
+    color: #fff !important;
     border: 2px solid transparent;
     transition: all 0.5s;
 }
@@ -1034,8 +1040,7 @@ section.why-us {
   display: block;
   margin-bottom: 0.75em;
 }
-#tabs ul .ui-tabs-active {
-}
+
 #tabs ul .ui-tabs-active a {
   color: #f5a425;
 }
@@ -1301,19 +1306,9 @@ section.courses .item .down-content p {
     margin-bottom: 25px;
 }
 
-section.courses .item .down-content img {
-    width: 40px;
-    border: 2px solid #f5a425;
-    border-radius: 50%;
-    text-align: left;
-    display: inline-block;
-}
 
-section.courses .item .down-content .text-button-pay {
-    float: right;
-    display: inline-block;
-    margin-top: -30px;
-}
+
+
 
 section.courses .item .down-content .text-button-pay a {
     color: #f5a425;
@@ -1321,8 +1316,9 @@ section.courses .item .down-content .text-button-pay a {
 }
 
 section.courses .item .down-content .text-button-free {
-    float: right;
-    display: inline-block;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1%;
     margin-top: -30px;
 }
 
@@ -1487,7 +1483,6 @@ section.video .left-content .main-button {
   z-index: 1043;
   position: fixed;
   outline: none !important;
-  -webkit-backface-visibility: hidden;
 }
 
 .mfp-container {
@@ -1599,7 +1594,7 @@ button.mfp-arrow {
   cursor: pointer;
   background: transparent;
   border: 0;
-  -webkit-appearance: none;
+
   display: block;
   outline: none;
   padding: 0;
@@ -2001,23 +1996,21 @@ section.contact form button {
 /* Footer */
 
 footer {
-    background-color: #152036;
+    background-color: rgba(22,34,57,0.95);
     text-align: center;
+    position: fixed;
+    z-index: 12;
+    width: 100%;
+    bottom: 0;
 }
 
 footer p {
     margin-bottom: 0px;
-    padding: 25px 0px;
+    padding: 1px 0px;
     color: #fff;
-    font-size: 13px;
-    text-transform: uppercase;
-    font-weight: 600;
+    font-size: 9px;
+    font-weight:5600;
     letter-spacing: 0.5px;
-}
-
-footer p a,
-footer p a:hover {
-    color: #f5a425;
 }
 
 @media screen and (max-width: 992px) {
@@ -2063,4 +2056,40 @@ footer p a:hover {
     font-weight: 600;
     letter-spacing: 0.25px;
   }
+}
+
+.answer {
+  background-color: #172238;
+  margin: 0.25rem;
+  color: #fff;
+}
+
+.answer:hover {
+  background-color: #f5a425;
+  margin: 0;
+  color: #fff;
+}
+
+.correct-answer {
+  background-color: #38ff06;
+  margin: 0.25rem;
+  color: #fff;
+}
+
+.incorrect-answer {
+  background-color: #ff0606;
+  margin: 0.25rem;
+  color: #fff;
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: inline-block;
+}
+
+.disabled {
+  pointer-events: none;
 }

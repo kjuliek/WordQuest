@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Bcpg;
 using WordQuestAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace WordQuestAPI.Controllers
 {
@@ -14,10 +15,12 @@ namespace WordQuestAPI.Controllers
     [ApiController]
     public class WordQuestGroupController : ControllerBase
     {
+        private readonly UserManager<User> _userManager;
         private readonly WordQuestContext _context;
 
-        public WordQuestGroupController(WordQuestContext context)
+        public WordQuestGroupController(UserManager<User> userManager, WordQuestContext context)
         {
+            _userManager = userManager;
             _context = context;
         }
 
@@ -100,7 +103,7 @@ namespace WordQuestAPI.Controllers
             var members = new List<User>();
             foreach (var groupUser in groupUsers)
             {
-                var member = await _context.Users.FindAsync(groupUser.UserId);
+                var member = await _userManager.FindByIdAsync(groupUser.UserId.ToString());
                 if (member == null) { return NotFound(); }
                 members.Add(member);
             }
@@ -110,14 +113,13 @@ namespace WordQuestAPI.Controllers
 
         // GET: api/WordQuestGroup/5/members/2
         [HttpGet("{group_id}/members/{user_id}")]
-        public async Task<ActionResult<User>> GetGroupMember(int group_id, int user_id)
+        public async Task<ActionResult<User>> GetGroupMember(int group_id, string user_id)
         {
             var groupUser = await _context.GroupsUsers   // '@' allows using 'group' despite it being a reserved keyword in C#.
                 .FirstOrDefaultAsync(g => g.GroupId == group_id && g.UserId == user_id);  
             if (groupUser == null) { return NotFound(); }
 
-            var member = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserId == user_id);
+            var member = await _userManager.FindByIdAsync(user_id);
             if (member == null) { return NotFound(); }
 
             return Ok(member);
@@ -183,11 +185,11 @@ namespace WordQuestAPI.Controllers
         [HttpPost("{group_id}/members/")]
         public async Task<ActionResult<User>> PostGroupMember(int group_id, User member)
         {
-            var groupUser = new GroupUsers { UserId = member.UserId , GroupId = group_id } ;
+            var groupUser = new GroupUsers { UserId = member.Id , GroupId = group_id } ;
             _context.GroupsUsers.Add(groupUser);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetGroupMember", new {group_id, user_id = member.UserId }, member);
+            return CreatedAtAction("GetGroupMember", new {group_id, user_id = member.Id }, member);
         }
 
         // DELETE: api/WordQuestGroup/5
@@ -223,7 +225,7 @@ namespace WordQuestAPI.Controllers
 
         // DELETE: api/WordQuestGroup/5/members/2
         [HttpDelete("{group_id}/members/{user_id}")]
-        public async Task<IActionResult> DeleteGroupMember(int group_id, int user_id)
+        public async Task<IActionResult> DeleteGroupMember(int group_id, string user_id)
         {
             var groupUser = await _context.GroupsUsers
                 .Where(gu => gu.UserId == user_id && gu.GroupId == group_id)

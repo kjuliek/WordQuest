@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WordQuestAPI.Models;
-
+using Microsoft.AspNetCore.Identity;
 namespace WordQuestAPI.Controllers
 {
     [Route("api/[controller]")]
@@ -40,7 +40,7 @@ namespace WordQuestAPI.Controllers
 
         // GET: api/WordQuestCourse/5/creator
         [HttpGet("{course_id}/creator")]
-        public async Task<ActionResult<User>> GetCourseCreator(int course_id)
+        public async Task<ActionResult<IdentityUser>> GetCourseCreator(int course_id)
         {
             var course = await _context.Courses.FindAsync(course_id);
 
