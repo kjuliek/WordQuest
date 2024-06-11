@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./WordQuestAPI
+    image: ubuntu:latest
+    container_name: WordQuestAPI
+    ports:
+      - "80:80"
+
+  db:
+    build:
+      context: .
+      dockerfile: WordQuestDB/Dockerfile
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=wordquest
+      - MYSQL_ROOT_PASSWORD=rootpassword
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:

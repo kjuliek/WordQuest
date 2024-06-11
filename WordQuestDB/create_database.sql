@@ -17,8 +17,8 @@ CREATE TABLE Words (
     en_word VARCHAR(255) NOT NULL
 );
 
-DROP TABLE IF EXISTS Groups;
-CREATE TABLE Groups (
+DROP TABLE IF EXISTS `Groups`;
+CREATE TABLE `Groups` (
     group_id INTEGER PRIMARY KEY AUTO_INCREMENT,
     group_name VARCHAR(255) NOT NULL,
     admin_id INTEGER,

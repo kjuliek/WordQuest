@@ -1,0 +1,11 @@
+FROM mysql:8.0
+
+# Vérifier le contenu du contexte de construction
+RUN ls -la /docker-entrypoint-initdb.d/
+
+# Copier le fichier de script SQL d'initialisation
+COPY ./WordQuestDB/create_database.sql /docker-entrypoint-initdb.d/
+
+# Vérifier le contenu après la copie
+RUN ls -la /docker-entrypoint-initdb.d/
+
