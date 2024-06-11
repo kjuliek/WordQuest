@@ -89,7 +89,7 @@ Avec WordQuest, explorez un monde virtuel rempli de défis linguistiques et de q
 
  ## Annexes
  -  ### Structure de la DataBase
- ![Structure de la DataBase](WordQuestDB/schema_db.png)
+ ![Structure de la DataBase](../WordQuestDB/schema_db.png)
  -  ### Diagramme de l'API 
  ![Diagramme de l'API](DiagrammeWordQuestAPI.png)
  -  ### Diagramme UML ou MCD
