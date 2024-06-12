@@ -1,42 +1,146 @@
 const uri = '../../../../api/WordQuestWord';
 let words = [];
 
-function getWords() {
-  fetch(uri)
-    .then(response => response.json())
-    .then(data => _displayWords(data))
-    .catch(error => console.error('Unable to get words.', error));
+async function getWords() {
+  return await fetch(uri)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json(); // Convertit la réponse en JSON et la retourne
+        })
+        .catch(error => {
+            console.error('Unable to get words.', error);
+            throw error; // Propage l'erreur pour la gérer où la fonction est appelée
+        });
 }
 
 let correctAnswer = "";
 
-function loadRandomWord() {
-  fetch(uri)
-      .then(response => response.json())
-      .then(data => {
-          enableOnClick();
-          const randomIndex = Math.floor(Math.random() * data.length);
-          const randomWord = data[randomIndex];
-          document.getElementById('randomWord').innerText = randomWord.enWord;
-          correctAnswer = randomWord.frWord;
-          // Charger les réponses possibles
-          const answers = [randomWord.frWord];
-          while (answers.length < 4) {
-            const randomIndex = Math.floor(Math.random() * data.length);
-            const randomAnswer = data[randomIndex];
-            answers.push(randomAnswer.frWord);
-          }
-          // Mélanger les réponses
-          answers.sort(() => Math.random() - 0.5);
-          // Afficher les réponses
-          for (let i = 0; i < 4; i++) {
-            document.getElementById(`answer${i + 1}`).classList = ["answer"]
-            document.getElementById(`answer${i + 1}`).innerText = answers[i];
-          }
-          const validateButton = document.getElementById('validateButton');
-          validateButton.classList = ['hidden'];
+async function loadRandomWord() {
+  try {
+    const response = await fetch(uri);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+
+    enableOnClick();
+
+    const randomIndex = Math.floor(Math.random() * data.length);
+    const randomWord = data[randomIndex];
+    document.getElementById('randomWord').innerText = randomWord.enWord;
+    correctAnswer = randomWord.frWord;
+
+    await showFlower(randomIndex);
+
+    // Charger les réponses possibles
+    const answers = [randomWord.frWord];
+    while (answers.length < 4) {
+      const randomIndex = Math.floor(Math.random() * data.length);
+      const randomAnswer = data[randomIndex];
+      if (!answers.includes(randomAnswer.frWord)) {
+        answers.push(randomAnswer.frWord);
+      }
+    }
+
+    // Mélanger les réponses
+    answers.sort(() => Math.random() - 0.5);
+
+    // Afficher les réponses
+    for (let i = 0; i < 4; i++) {
+      const answerElement = document.getElementById(`answer${i + 1}`);
+      answerElement.classList = ["answer"];
+      answerElement.innerText = answers[i];
+    }
+
+    const validateButton = document.getElementById('validateButton');
+    validateButton.classList.add('hidden');
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+function clearFlower() {
+  for (let i = 0; i < 5; i++) {
+    if (!document.getElementById(`flower${(i+1)}`).classList.contains('hidden')) {
+      document.getElementById(`flower${(i+1)}`).classList.add('hidden');
+    }
+  }
+}
+
+async function showFlower(word_id) {
+  clearFlower();
+  id = await checkWhoIsLogIn();
+  if (id) {
+    learningstage = await learningStage(id, word_id);
+    for (let i = 0; i < 5; i++) {
+      if (i+1 == learningstage) {
+        document.getElementById(`flower${(i+1)}`).classList.remove('hidden');
+      }
+    }
+  }
+}
+
+async function learningStage(user_id, word_id) {
+  try {
+    const response = await fetch(`../../../api/WordQuestUser/${user_id}/learnedwords/${word_id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+
+    // Vérifier si la réponse est nulle
+    const text = await response.text();
+    if (!text) {
+        await addWordToLearnedWords(user_id, word_id);
+        return 0; // Retourner une valeur par défaut ou indiquer l'absence de données
+    }
+
+    // Si la réponse n'est pas nulle, convertir en JSON
+    const data = JSON.parse(text);
+    return data;
+  } catch (error) {
+      console.error('Error fetching learning stage:', error);
+      throw error;
+  }
+}
+
+async function updateLearningStage(word, update) {
+  id = await checkWhoIsLogIn();
+  if (id) {
+    word_id = await searchWordIdByFr(word);
+    if (word_id) {
+      newLearningStage = await learningStage(id, word_id) + update;
+      await fetch(`../../../api/WordQuestUser/${id}/learnedwords/${word_id}`, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newLearningStage)
       })
-      .catch(error => console.error('Error:', error));
+      .catch(error => console.error('Unable to update word.', error));
+    }
+  }
+}
+
+async function addWordToLearnedWords(user_id, word_id) {
+  await fetch(`../../../api/WordQuestUser/${user_id}/learnedwords/`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(word_id)
+  })
+    .then(response => response.json())
+    .catch(error => console.error('Unable to add word.', error));
 }
 
 function checkAnswer(index) {
@@ -44,8 +148,10 @@ function checkAnswer(index) {
   //let answers = document.querySelectorAll('.answer');
   if (selectedAnswer.innerText === correctAnswer) {
     selectedAnswer.classList = ['correct-answer'];
+    updateLearningStage(correctAnswer, 1);
   } else {
     selectedAnswer.classList = ['incorrect-answer'];
+    updateLearningStage(correctAnswer, -1);
   }
   for (let i = 0; i < 4; i++) {
     const thisAnswer = document.getElementById(`answer${i + 1}`);
@@ -59,7 +165,7 @@ function checkAnswer(index) {
   disableOnClick();
 
   const validateButton = document.getElementById('validateButton');
-  validateButton.classList= ['visible'];
+  validateButton.classList.remove('hidden');
   return false;
 }
 
@@ -82,6 +188,48 @@ function enableOnClick() {
       checkAnswer(index);
     }
   });
+}
+
+async function searchWordIdByFr(wordFr) {
+  return await getWords()
+        .then(words => {
+            // Vérifie que words est bien un tableau
+            if (!Array.isArray(words)) {
+                console.error('Error: "words" is not an array.');
+                return null;
+            }
+
+            // Utilisation de find pour trouver le mot correspondant
+            let foundWord = words.find(word => word.frWord === wordFr);
+
+            // Si foundWord est défini, retournez son WordId ; sinon, retournez null
+            return foundWord ? foundWord.wordId : null;
+        })
+        .catch(error => {
+            console.error('Error fetching words:', error);
+            return null; // Gestion de l'erreur ici
+        });
+}
+
+async function searchWordIdByEn(wordEn) {
+  return await getWords()
+        .then(words => {
+            // Vérifie que words est bien un tableau
+            if (!Array.isArray(words)) {
+                console.error('Error: "words" is not an array.');
+                return null;
+            }
+
+            // Utilisation de find pour trouver le mot correspondant
+            let foundWord = words.find(word => word.enWord === wordEn);
+
+            // Si foundWord est défini, retournez son WordId ; sinon, retournez null
+            return foundWord ? foundWord.WordId : null;
+        })
+        .catch(error => {
+            console.error('Error fetching words:', error);
+            return null; // Gestion de l'erreur ici
+        });
 }
 
 function addWord() {

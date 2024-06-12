@@ -12,7 +12,7 @@ using WordQuestAPI.Models;
 namespace WordQuestAPI.Migrations
 {
     [DbContext(typeof(WordQuestContext))]
-    [Migration("20240611102942_InitialCreate")]
+    [Migration("20240612211923_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -366,6 +366,7 @@ namespace WordQuestAPI.Migrations
             modelBuilder.Entity("WordQuestAPI.Models.UserXPLevel", b =>
                 {
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("varchar(255)")
                         .HasColumnName("user_id");
 
@@ -377,7 +378,7 @@ namespace WordQuestAPI.Migrations
                         .HasColumnType("int")
                         .HasColumnName("user_xp");
 
-                    b.HasKey("UserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("users");
                 });

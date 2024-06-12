@@ -52,31 +52,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-        // LogIn
-        fetch('templates.html')
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const logInTemplate = doc.getElementById('login-template');
-            if (logInTemplate) {
-                const logInClone = logInTemplate.content.cloneNode(true);
-                document.body.appendChild(logInClone);
-    
-                const logInOverlay = document.getElementById('login-overlay');
-                //const logInOverlayContent = logInOverlay.querySelector('.overlay-content');
-    
-                document.getElementById('OpenLogIn').addEventListener('click', function() {
-                    logInOverlay.style.display = 'flex';
-                });
-    
-                // Hide the overlay when clicking outside of the overlay content
-                window.addEventListener('click', function(event) {
-                    if (event.target === logInOverlay) {
-                        logInOverlay.style.display = 'none';
-                    }
-                });
-            }
-        });
+    // LogIn
+    fetch('templates.html')
+    .then(response => response.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const logInTemplate = doc.getElementById('login-template');
+        if (logInTemplate) {
+            const logInClone = logInTemplate.content.cloneNode(true);
+            document.body.appendChild(logInClone);
+
+            const logInOverlay = document.getElementById('login-overlay');
+            //const logInOverlayContent = logInOverlay.querySelector('.overlay-content');
+
+            document.getElementById('OpenLogIn').addEventListener('click', function() {
+                logInOverlay.style.display = 'flex';
+            });
+
+            // Hide the overlay when clicking outside of the overlay content
+            window.addEventListener('click', function(event) {
+                if (event.target === logInOverlay) {
+                    logInOverlay.style.display = 'none';
+                }
+            });
+        }
+    });
 });
+
+
 

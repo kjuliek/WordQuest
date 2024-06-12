@@ -42,9 +42,24 @@
             <div class="col-6 answers">
               <a href="#" onclick="checkAnswer(3)"><h2 id="answer4"></h2></a>
             </div>
-            <div>
-              <button id="validateButton" class="hidden" onclick="loadRandomWord()">Valider</button>
-            </div>
+          </div>
+          <div class="flower hidden mt-5" id="flower1">
+            <img src="../images/flower1.png">
+          </div>
+          <div class="flower hidden mt-5" id="flower2">
+            <img src="../images/flower2.png">
+          </div>
+          <div class="flower hidden mt-5" id="flower3">
+            <img src="../images/flower3.png">
+          </div>
+          <div class="flower hidden mt-5" id="flower4">
+            <img src="../images/flower4.png">
+          </div>
+          <div class="flower hidden mt-5" id="flower5">
+            <img src="../images/flower5.png">
+          </div>
+          <div class="mt-5 validate">
+            <button id="validateButton" class="hidden" onclick="loadRandomWord()">Valider</button>
           </div>
         </div>
       </div>
@@ -53,9 +68,14 @@
   <!-- ***** WordQuest Game End ***** -->
 
   <script src="../js/templates.js"></script>
+  <script src="../js/users.js"></script>
   <script src="../js/site.js"></script>
+  <script src="../js/registration.js"></script>
   <script>
-    window.onload = loadRandomWord;
+    window.onload = function() {
+        loadRandomWord();
+        showLogIn();
+    };
   </script>
 
   </body>

@@ -41,7 +41,7 @@ namespace WordQuestAPI.Models{
             modelBuilder.Entity<Word>().HasKey(w => w.WordId);
             modelBuilder.Entity<Course>().HasKey(c => c.CourseId);
             modelBuilder.Entity<Group>().HasKey(g => g.GroupId);
-            modelBuilder.Entity<UserXPLevel>().HasKey(ul => ul.UserId);
+            modelBuilder.Entity<UserXPLevel>().HasNoKey();
             modelBuilder.Entity<LearnedWord>().HasKey(lw => new { lw.UserId, lw.WordId });
             modelBuilder.Entity<CourseWords>().HasKey(cw => new { cw.CourseId, cw.WordId });
             modelBuilder.Entity<GroupCourses>().HasKey(gc => new { gc.GroupId, gc.CourseId});

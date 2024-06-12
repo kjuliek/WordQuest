@@ -2073,7 +2073,7 @@ footer p {
 .correct-answer {
   background-color: #38ff06;
   margin: 0.25rem;
-  color: #fff;
+  color: #172238;
 }
 
 .incorrect-answer {
@@ -2083,7 +2083,7 @@ footer p {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .visible {
@@ -2092,4 +2092,29 @@ footer p {
 
 .disabled {
   pointer-events: none;
+}
+
+.flower img {
+  width: 100px; 
+  height: 100px;
+}
+
+.validate button {
+  width: 100px;
+  height: 50px;
+  border-radius: 10px;
+  border:0;
+  background-color: #f5a425;
+  font-weight: 500;
+  color: #fff;
+}
+
+.validate button:hover {
+  width: 110px;
+  height: 55px;
+  border-radius: 10px;
+  border:0;
+  background-color: #38ff06;
+  font-weight: 600;
+  color: #172238;
 }

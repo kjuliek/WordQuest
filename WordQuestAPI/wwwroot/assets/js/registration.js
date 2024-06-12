@@ -1,5 +1,4 @@
-
-function addUser() {
+async function register() {
     
     const username = document.getElementById('signin-username').value;
     const email = document.getElementById('email').value;
@@ -14,19 +13,21 @@ function addUser() {
     }
 
     // Créer un objet user avec les données du formulaire
-    const user = {
-        username: username,
-        email: email,
-        phone: phone
-    };
     const registerModel = {
-        User: user,
-        Password: password
+        UserName: username,
+        Password: password,
+        Email: email,
+        PhoneNumber: phone
     };
+
+    const loginModel = {
+        Username: username,
+        Password: password
+    }
 
     try {
         // Effectuer une requête AJAX vers l'endpoint d'inscription
-        const response = fetch('../../../api/account/register', {
+        const response = await fetch('../../../account/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -35,16 +36,89 @@ function addUser() {
         });
 
         if (response.ok) {
-            // Inscription réussie, rediriger l'utilisateur vers une nouvelle page ou afficher un message de réussite
             console.log('User registered successfully.');
-            // Redirection vers une nouvelle page
-            window.location.href = '/dashboard'; // Adapté à votre application
+            loginUser(loginModel);
         } else {
-            // Afficher un message d'erreur en cas d'échec de l'inscription
             console.error('Failed to register user:', response.statusText);
         }
     } catch (error) {
         console.error('Error during registration:', error);
+    }
+}
+
+async function login() {
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const loginModel = {
+        Username: username,
+        Password: password
+    }
+
+    try {
+        loginUser(loginModel);
+
+    } catch (error) {
+        console.error('Error during login:', error);
+    }
+}
+
+async function logout() {
+    const response = await fetch('../../../account/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify()
+    });
+    if (response.ok) {
+        console.log('LogOut successfully.');
+        window.location.href = '/';
+    } else {
+        console.error('Failed to logout user :', response.statusText);
+    }
+}
+
+async function loginUser(loginModel) {
+    const response = await fetch('../../../account/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(loginModel)
+    });
+    if (response.ok) {
+        console.log('Login successfully.');
+        window.location.href = '/';
+    } else {
+        console.error('Failed to login user :', response.statusText);
+    }
+}
+
+async function checkWhoIsLogIn() {
+    const response = await fetch('../../../account/check-login-status', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify()
+    });
+    const data = await response.json();
+    if (data.isLoggedIn) {
+        return data.id;
+    } else {
+        return null;
+    }
+}
+
+async function showLogIn(){
+    id = await checkWhoIsLogIn();
+    if (id) {
+        const user = await getUser(id);
+        document.getElementById('connection-menu').classList = ["has-submenu hidden"];
+        document.getElementById('user-menu').classList = ["has-submenu"];
+        document.getElementById('user-menu').querySelector('a').innerText = user.userName;
     }
 }
 

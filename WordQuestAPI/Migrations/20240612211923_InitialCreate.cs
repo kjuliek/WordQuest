@@ -33,7 +33,7 @@ namespace WordQuestAPI.Migrations
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
-
+/*
             migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
@@ -68,7 +68,7 @@ namespace WordQuestAPI.Migrations
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
-/*
+
             migrationBuilder.CreateTable(
                 name: "Groups",
                 columns: table => new
@@ -262,7 +262,6 @@ namespace WordQuestAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_users", x => x.user_id);
                     table.ForeignKey(
                         name: "FK_users_AspNetUsers_user_id",
                         column: x => x.user_id,
@@ -431,6 +430,11 @@ namespace WordQuestAPI.Migrations
                 name: "IX_learned_words_word_id",
                 table: "learned_words",
                 column: "word_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_user_id",
+                table: "users",
+                column: "user_id");
         }
 
         /// <inheritdoc />

@@ -1,11 +1,27 @@
-const uri = '../../../api/WordQuestUser';
-let words = [];
-
 function getUsers() {
-  fetch(uri)
+  fetch('../../../api/WordQuestUser')
     .then(response => response.json())
     .then(data => _displayUsers(data))
     .catch(error => console.error('Unable to get users.', error));
+}
+
+function getUser(id) {
+  return fetch(`../../../api/WordQuestUser/${id}`, {
+    method: 'GET',
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    return data;
+  })
+  .catch(error => {
+    console.error('Unable to get user.', error);
+    throw error;
+  });
 }
 
 function addUser() {
@@ -21,7 +37,7 @@ function addUser() {
         userPassword: addUserPasswordTextbox.value.trim()
       };
   
-    fetch(uri, {
+    fetch('../../../api/WordQuestUser', {
         method: 'POST',
         headers: {
         'Accept': 'application/json',
@@ -45,7 +61,7 @@ function addUser() {
 }
 
 function deleteUser(id) {
-  fetch(`${uri}/${id}`, {
+  fetch(`../../../api/WordQuestUser/${id}`, {
     method: 'DELETE'
   })
   .then(() => getWords())
@@ -77,7 +93,7 @@ function updateUser() {
             userPassword: editUserPasswordTextbox
         };
 
-        fetch(`${uri}/${userId}`, {
+        fetch(`../../../api/WordQuestUser/${userId}`, {
             method: 'PUT',
             headers: {
             'Accept': 'application/json',

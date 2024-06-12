@@ -37,7 +37,7 @@ namespace WordQuestAPI.Controllers
         {
             var user = await _userManager.FindByIdAsync(user_id);
             if (user == null) return NotFound();
-
+            Console.WriteLine(user);
             return user;
         }
 
@@ -60,16 +60,14 @@ namespace WordQuestAPI.Controllers
 
         // GET: api/WordQuestUser/5/learnedwords
         [HttpGet("{user_id}/learnedwords/{word_id}")]
-        public async Task<ActionResult<IEnumerable<Word>>> GetUserLearnedWord(string user_id, int word_id)
+        public async Task<ActionResult<IEnumerable<int>>> GetUserLearnedWord(string user_id, int word_id)
         {
             var learnedWord = await _context.LearnedWords
                 .FirstOrDefaultAsync(lw => lw.UserId == user_id && lw.WordId == word_id);
 
-            if (learnedWord == null) {  return BadRequest(); }
+            if (learnedWord == null) {  return Ok(null); }
 
-            var word = await _context.Words.FindAsync(word_id);
-
-            return Ok(word);
+            return Ok(learnedWord.LearningStage);
         }
 
         // GET: api/WordQuestUser/5/administeredgroups/

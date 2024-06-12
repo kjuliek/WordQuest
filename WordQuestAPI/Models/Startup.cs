@@ -39,10 +39,6 @@ namespace WordQuest
                 options.Password.RequireLowercase = true;
                 options.Password.RequiredUniqueChars = 6;
                 options.Password.RequiredUniqueChars = 1;
-
-                // Configuration du salage
-                //options.Password.SaltSize = 16; // Taille du salage en octets
-                //options.Password.Salt = new byte[] { 0x01, 0x02, 0x03, 0x04 }; // Salage personnalisé (facultatif)
             })
             .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<WordQuestContext>();

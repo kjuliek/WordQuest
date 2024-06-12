@@ -4,7 +4,7 @@ namespace WordQuestAPI.Models
     [Table("users")]
     public class UserXPLevel
     {
-        [ForeignKey("id")]     // Not necessary here. We keep it to be explicit about the foreign key relationship.
+        [ForeignKey("UserId")]     // Not necessary here. We keep it to be explicit about the foreign key relationship.
         [Column("user_id")]
         public string UserId { get; set; }
 

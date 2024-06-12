@@ -363,6 +363,7 @@ namespace WordQuestAPI.Migrations
             modelBuilder.Entity("WordQuestAPI.Models.UserXPLevel", b =>
                 {
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("varchar(255)")
                         .HasColumnName("user_id");
 
@@ -374,7 +375,7 @@ namespace WordQuestAPI.Migrations
                         .HasColumnType("int")
                         .HasColumnName("user_xp");
 
-                    b.HasKey("UserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("users");
                 });

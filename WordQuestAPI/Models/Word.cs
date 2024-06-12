@@ -5,9 +5,7 @@ namespace WordQuestAPI.Models
     {
         [Key]
         public int WordId { get; set; }
-
         public string FrWord { get; set; } = string.Empty;
-
         public string EnWord { get; set; } = string.Empty;
     }
 }

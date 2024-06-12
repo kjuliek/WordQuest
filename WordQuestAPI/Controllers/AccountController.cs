@@ -21,13 +21,29 @@ namespace WordQuestAPI.Controllers
             _signInManager = signInManager;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(string email, string password)
+        [HttpGet("check-login-status")]
+        public IActionResult CheckLoginStatus()
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            // Vérifiez ici l'état de connexion de l'utilisateur
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                return Ok(new {isLoggedIn = true, id = userId });
+            }
+            else
+            {
+                return Ok(new {isLoggedIn = false});
+            }
+        }
+
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginModel loginModel)
+        {
+            var user = await _userManager.FindByNameAsync(loginModel.UserName);
             if (user != null)
             {
-                var result = await _signInManager.PasswordSignInAsync(user, password, isPersistent: false, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(user, loginModel.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     //HttpContext.Session.SetString("UserEmail", email);
@@ -49,6 +65,10 @@ namespace WordQuestAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterModel registerModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = new User
             {
                 UserName = registerModel.UserName,
@@ -60,9 +80,12 @@ namespace WordQuestAPI.Controllers
             if (result.Succeeded)
             {
                 return Ok("Registration successful");
+            } 
+            else
+            {
+                var errorMessages = result.Errors.Select(e => e.Description).ToList();
+                return BadRequest(new { Errors = errorMessages });
             }
-
-            return BadRequest(result.Errors);
         }
     }
 }

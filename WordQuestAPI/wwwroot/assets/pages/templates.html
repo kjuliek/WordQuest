@@ -29,10 +29,16 @@
                     <li><a href="home.html">Home</a></li>
                     <li><a href="train.html">Train</a></li>
                     <li><a href="groups.html">Groups</a></li>
-                    <li class="has-submenu"><a>Connexion</a>
+                    <li class="has-submenu" id="connection-menu"><a>Connexion</a>
                         <ul class="sub-menu">
                             <li><button id="OpenSignIn">Inscription</button></li>
                             <li><button id="OpenLogIn">Connexion</button></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu hidden" id="user-menu"><a>Username</a>
+                        <ul class="sub-menu">
+                            <li><button id="ViewProfil">Profil</button></li>
+                            <li><button onclick="logout()" id="LogOut">Déconnexion</button></li>
                         </ul>
                     </li>
                 </ul>
@@ -52,7 +58,7 @@
         <div class="overlay" id="login-overlay">
             <div class="overlay-content px-5">
                 <h2>Connexion :</h2>
-                <form id="login-form">
+                <form action="javascript:void(0);" method="POST" onsubmit="login()">
                     <div class="form-group mt-4">
                         <input type="text" class="form-control" id="username" name="username"  placeholder="Username" required>
                     </div>
@@ -70,7 +76,7 @@
         <div class="overlay" id="signin-overlay">
             <div class="overlay-content px-5">
                 <h2>Inscription :</h2>
-                <form action="javascript:void(0);" method="POST" onsubmit="addUser()">
+                <form action="javascript:void(0);" method="POST" onsubmit="register()">
                     <div class="form-group mt-4">
                         <input type="text" class="form-control" id="signin-username" name="username"  placeholder="Username *" required>
                     </div>
@@ -96,5 +102,6 @@
     <!-- JavaScript -->
     <script src="../js/templates.js"></script>
     <script src="../js/registration.js"></script>
+    <script src="../js/users.js"></script>
 </body>
 </html>
