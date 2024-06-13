@@ -74,7 +74,7 @@ avec les paramètres :
 ## Installations des Machines Virtuelles
 Cette partie n'est utile pas utile si vous souhaitez lancer le projet en local, si c'est le cas allez directement à la partie : [Configuration des IP dans l'API](#configuration-des-ip-dans-lapi)
 
-Mettre le doc Machine virtuel ici
+https://github.com/kjuliek/WordQuest/blob/main/Documentation/Doc%20Web.pdf
 
 ## Configuration des IP dans l'API
 ### Dans le fichier /WodQuestAPI/Models/Startup.cs modifier l'adresse par l'adresse du serveur Front
