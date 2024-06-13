@@ -41,6 +41,16 @@ namespace WordQuestAPI.Controllers
             return user;
         }
 
+        // GET: api/WordQuestUser/get_by_name/georgette
+        [HttpGet("/api/WordQuestUser/get_by_name/{user_name}")]
+        public async Task<ActionResult<User>> GetUserByName(string user_name)
+        {
+            var user = await _userManager.FindByNameAsync(user_name);
+            if (user == null) return NotFound();
+            Console.WriteLine(user);
+            return user;
+        }
+
         // GET: api/WordQuestUser/5/learnedwords
         [HttpGet("{user_id}/learnedwords")]
         public async Task<ActionResult<IEnumerable<Word>>> GetUserLearnedWords(string user_id)

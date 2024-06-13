@@ -1,15 +1,17 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using WordQuestAPI.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Configuration;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 
 
@@ -17,6 +19,12 @@ namespace WordQuest
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
         public void ConfigureServices(IServiceCollection services)
         {
             // Ajoute le support des fichiers statiques
@@ -43,23 +51,61 @@ namespace WordQuest
             .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<WordQuestContext>();
 
+            // Ajoutez CORS à la collection de services
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin5500",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://127.0.0.1:5500") // Remplacez par l'origine que vous souhaitez autoriser
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
 
             // Configure Authentication
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options =>
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    options.LoginPath = "/account/login";
-                    options.LogoutPath = "/account/logout";
-                    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-                });
-            
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidAudience = _configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]))
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        // Gestion des erreurs d'authentification JWT
+                        Console.WriteLine("Authentication failed: " + context.Exception.Message);
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+            });
+        
             // Ajouter les services de session
             services.AddDistributedMemoryCache();
             services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(30); // Durée d'inactivité avant expiration de la session
-                options.Cookie.HttpOnly = true; // Sécurité du cookie
-                options.Cookie.IsEssential = true; // Nécessaire pour GDPR
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
             });
 
             services.AddControllers();
@@ -85,6 +131,10 @@ namespace WordQuest
             app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
+
+            // Activer CORS globalement
+            app.UseCors("AllowSpecificOrigin5500");
+
 
             // Middleware de session
             app.UseSession();

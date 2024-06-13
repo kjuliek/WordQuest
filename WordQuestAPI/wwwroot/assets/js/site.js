@@ -1,8 +1,8 @@
-const uri = '../../../../api/WordQuestWord';
+
 let words = [];
 
 async function getWords() {
-  return await fetch(uri)
+  return await fetch(uri + '/api/WordQuestWord/')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -19,7 +19,7 @@ let correctAnswer = "";
 
 async function loadRandomWord() {
   try {
-    const response = await fetch(uri);
+    const response = await fetch(uri + '/api/WordQuestWord/');
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
@@ -241,7 +241,7 @@ function addWord() {
     enWord: addEnWordTextbox.value.trim()
   };
 
-  fetch(uri, {
+  fetch(uri + '/api/WordQuestWord/', {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
@@ -259,7 +259,7 @@ function addWord() {
 }
 
 function deleteWord(id) {
-  fetch(`${uri}/${id}`, {
+  fetch(`${uri}/api/WordQuestWord/${id}`, {
     method: 'DELETE'
   })
   .then(() => getWords())
@@ -283,7 +283,7 @@ function updateWord() {
     enWord: document.getElementById('edit-en-word').value.trim()
   };
 
-  fetch(`${uri}/${wordId}`, {
+  fetch(`${uri}/api/WordQuestWord/${wordId}`, {
     method: 'PUT',
     headers: {
       'Accept': 'application/json',
