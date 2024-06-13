@@ -102,6 +102,7 @@ async function loginUser(loginModel) {
             console.log('Login successfully.');
             localStorage.setItem('token', data.token);
             showLogIn();
+            location.reload();
         } else {
             console.error('Failed to login user :', response.statusText);
         }
@@ -119,14 +120,17 @@ async function checkWhoIsLogIn() {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
+
         if (response.ok) {
             const data = await response.json();
             if (data.isLoggedIn) {
-                user = await getUserByName(data.id);
+                const user = await getUserByName(data.id);
                 return user;
             } else {
-                return null;
+                return { status: 'not_logged_in', message: 'User is not logged in.' };
             }
+        } else if (response.status === 401) {
+            return null;
         } else {
             console.error('Failed to check login status:', response.statusText);
             return null;
