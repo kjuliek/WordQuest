@@ -34,6 +34,11 @@ Avec WordQuest, explorez un monde virtuel rempli de défis linguistiques et de q
 
 ## Fonctionnalités
 -   ### Fonctionnalités minimales
+    -   Connexion Sécurisée
+    -   API fonctionnelle
+    -   Visualisation du niveau par mot
+ 
+-   ### Fonctionnalités optimales
     -   Création et Gestion de Groupes
     -   Ajout de Cours (de listes de mots)
     -   Niveaux d'Apprentissage par Mots
@@ -46,7 +51,7 @@ Avec WordQuest, explorez un monde virtuel rempli de défis linguistiques et de q
 
 ## Stack et Technologies
 
--   ### Langages de Progammation
+-   ### Langages de Programmation
     -   C# : développement de l'API
     - JavaScript : développement front-end et lien entre HTML et API
 
@@ -80,7 +85,7 @@ Avec WordQuest, explorez un monde virtuel rempli de défis linguistiques et de q
 | 20/05 au 26/05 | Mise en place du serveur IIS et certifications pour le https                                          | Recherche sur la mise en place d'une API ASP.NET et schéatisation de l'API |
 | 27/05 au 02/06 | Documentation du serveur                                                                              | Mise en place de l'API et debug                                            |
 | 03/06 au 09/06 | Utilisation de Docker pour la base de donnée                                                          | Mise en place des fonctionnalités de l'application web                     |
-| 10/06 au 14/06 | Debug                                                                                                 | Maquette + jolie front                                                     |
+| 10/06 au 14/06 | Debug                                                                                                 | Debug                                           |
 
 -   ### Rendu + Oral le 14/06
 
@@ -91,6 +96,9 @@ Avec WordQuest, explorez un monde virtuel rempli de défis linguistiques et de q
  -  ### Structure de la DataBase
  ![Structure de la DataBase](../WordQuestDB/schema_db.png)
  -  ### Diagramme de l'API 
- ![Diagramme de l'API](DiagrammeWordQuestAPI.png)
- -  ### Diagramme UML ou MCD
+ ![Diagramme de l'API](images/DiagrammeWordQuestAPI.png)
+-  ### Schéma de l'infrastructure
+ ![Diagramme de l'API](images/SchemaInfra.png)
+
+ 
 
