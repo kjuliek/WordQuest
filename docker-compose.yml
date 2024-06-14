@@ -1,17 +1,17 @@
-version: '3.8'
 
 services:
   web:
-    build: ./WordQuestAPI
-    image: ubuntu:latest
-    container_name: WordQuestAPI
-    ports:
-      - "80:80"
-
-  db:
     build:
       context: .
-      dockerfile: WordQuestDB/Dockerfile
+      dockerfile: WordQuestAPI/Dockerfile
+    container_name: WordQuestAPI
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
     ports:
       - "3306:3306"
     environment:

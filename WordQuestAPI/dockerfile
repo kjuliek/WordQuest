@@ -1,7 +1,29 @@
-FROM ubuntu:latest
+# Étape de build: Utilisation d'une image SDK .NET comme base
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
 
-RUN apt-get update && apt-get install -y apache2 && apt-get clean
+# Copie du fichier csproj et restauration des dépendances
+COPY ./WordQuestAPI/WordQuestAPI.csproj ./WordQuestAPI/
+RUN dotnet restore ./WordQuestAPI/WordQuestAPI.csproj
 
-EXPOSE 80
+# Copie des fichiers front-end vers un répertoire temporaire
+COPY ./WordQuestFront /app/WordQuestFront
 
-CMD ["apachectl", "-D", "FOREGROUND"]
+# Build de l'application
+COPY ./WordQuestAPI/ ./WordQuestAPI/
+WORKDIR /app/WordQuestAPI
+RUN dotnet build -c Release -o /app/build
+
+# Étape de runtime: Utilisation d'une image ASP.NET Core
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/build ./
+
+# Copie des fichiers front-end vers le répertoire wwwroot
+COPY --from=build /app/WordQuestFront /app/wwwroot
+
+# Exposition du port 80 pour l'application ASP.NET Core
+EXPOSE 8080
+
+# Commande pour démarrer l'application ASP.NET Core
+ENTRYPOINT ["dotnet", "WordQuestAPI.dll"]
